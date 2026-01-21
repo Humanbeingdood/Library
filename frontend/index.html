@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Library Organizer</title>
+</head>
+<body>
+
+<h1>Library</h1>
+
+<h2>Add Book</h2>
+<input id="title" placeholder="Title">
+<input id="author" placeholder="Author">
+<input id="isbn" placeholder="ISBN">
+<button onclick="addBook()">Add</button>
+
+<h2>Books</h2>
+
+<h2>Search</h2>
+<input id="search" placeholder="Search by title or author">
+<button onclick="loadBooks()">Search</button>
+
+<table border="1">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Author</th>
+            <th>ISBN</th>
+            <th>Status</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody id="book-list"></tbody>
+</table>
+
+<script>
+const API = "http://127.0.0.1:5000/api/books";
+
+function loadBooks() {
+    const search = document.getElementById("search")?.value || "";
+    const url = search ? `${API}?search=${search}` : API;
+
+    fetch(url)
+        .then(res => res.json())
+        .then(data => {
+            const list = document.getElementById("book-list");
+            list.innerHTML = "";
+            data.forEach(book => {
+                const row = document.createElement("tr");
+
+                row.innerHTML = `
+                    <td>${book.title}</td>
+                    <td>${book.author}</td>
+                    <td>${book.isbn}</td>
+                    <td>${book.status}</td>
+                    <td>
+                        ${
+                            book.status === "available"
+                            ? `<button onclick="borrowBook(${book.id})">Borrow</button>`
+                            : `<button onclick="returnBook(${book.id})">Return</button>`
+                        }
+                        <button onclick="deleteBook(${book.id})">Delete</button>
+                    </td>
+                `;
+                list.appendChild(row);
+            });
+        });
+}
+
+function addBook() {
+    fetch(API, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            title: document.getElementById("title").value,
+            author: document.getElementById("author").value,
+            isbn: document.getElementById("isbn").value
+        })
+    }).then(() => {
+        document.getElementById("title").value = "";
+        document.getElementById("author").value = "";
+        document.getElementById("isbn").value = "";
+        loadBooks();
+    });
+}
+
+function borrowBook(id) {
+    fetch(`${API}/${id}/borrow`, { method: "POST" })
+        .then(loadBooks);
+}
+
+function returnBook(id) {
+    fetch(`${API}/${id}/return`, { method: "POST" })
+        .then(loadBooks);
+}
+
+function deleteBook(id) {
+    if (!confirm("Delete this book?")) return;
+
+    fetch(`${API}/${id}`, {
+        method: "DELETE"
+    }).then(loadBooks);
+}
+
+loadBooks();
+</script>
+
+</body>
+</html>
