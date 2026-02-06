@@ -1,108 +1,156 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Library Organizer</title>
+  <meta charset="UTF-8" />
+  <title>Library Organizer</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="header.css">
+  <link rel="stylesheet" href="manage.css">
 </head>
+
 <body>
 
-<h1>Library</h1>
+<!-- header -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo">LibraryHub</div>
 
-<h2>Add Book</h2>
-<input id="title" placeholder="Title">
-<input id="author" placeholder="Author">
-<input id="isbn" placeholder="ISBN">
-<button onclick="addBook()">Add</button>
+      <nav class="nav-links">
+        <a href="dashboard.html">Home</a>
+        <a href="index.html">Catalog</a>
+        <a href="#">Events</a>
+        <a href="#">About</a>
+      </nav>
 
-<h2>Books</h2>
 
-<h2>Search</h2>
-<input id="search" placeholder="Search by title or author">
-<button onclick="loadBooks()">Search</button>
+      <div class="nav-actions">
+        <input type="text" placeholder="Search books..." />
+      </div>
+      <button onclick="logout()">Logout</button>
+    </div>
+  </header>
 
-<table border="1">
-    <thead>
+  <!-- page stuff -->
+  <main class="container">
+    <h1>Library</h1>
+
+    <h2>Add Book</h2>
+    <input id="title" placeholder="Title">
+    <input id="author" placeholder="Author">
+    <input id="isbn" placeholder="ISBN">
+    <input id="image" placeholder="Image URL">
+    
+    <button onclick="addBook()">Add</button>
+
+    <h2>Search</h2>
+    <input id="search" placeholder="Search by title or author">
+    <button onclick="loadBooks()">Search</button>
+
+    <h2>Books</h2>
+
+    <table>
+      <thead>
         <tr>
-            <th>Title</th>
-            <th>Author</th>
-            <th>ISBN</th>
-            <th>Status</th>
-            <th>Action</th>
+          <th>Title</th>
+          <th>Author</th>
+          <th>ISBN</th>
+          <th>Status</th>
+          <th>Action</th>
         </tr>
-    </thead>
-    <tbody id="book-list"></tbody>
-</table>
+      </thead>
+      <tbody id="book-list"></tbody>
+    </table>
+  </main>
 
-<script>
-const API = "http://127.0.0.1:5000/api/books";
+  <!-- script -->
+  <script>
+    function checkUser() {
+      fetch("http://127.0.0.1:5000/api/me", { credentials: "include" })
+      .then(res => res.json())
+      .then(data => {
+        if (!data.username) {
+          window.location.href = "login.html";  // not logged in
+        }
+      });
+    }
 
-function loadBooks() {
-    const search = document.getElementById("search")?.value || "";
-    const url = search ? `${API}?search=${search}` : API;
+    checkUser();
 
-    fetch(url)
+    function logout() {
+      fetch("http://127.0.0.1:5000/api/logout", { method: "POST", credentials: "include"  })
+      .then(() => {
+        window.location.href = "login.html";
+      });
+    }
+
+    const API = "http://127.0.0.1:5000/api/books";
+
+    function loadBooks() {
+      const search = document.getElementById("search")?.value || "";
+      const url = search ? `${API}?search=${search}` : API;
+
+      fetch(url)
         .then(res => res.json())
         .then(data => {
-            const list = document.getElementById("book-list");
-            list.innerHTML = "";
-            data.forEach(book => {
-                const row = document.createElement("tr");
+          const list = document.getElementById("book-list");
+          list.innerHTML = "";
+          data.forEach(book => {
+            const row = document.createElement("tr");
 
-                row.innerHTML = `
-                    <td>${book.title}</td>
-                    <td>${book.author}</td>
-                    <td>${book.isbn}</td>
-                    <td>${book.status}</td>
-                    <td>
-                        ${
-                            book.status === "available"
-                            ? `<button onclick="borrowBook(${book.id})">Borrow</button>`
-                            : `<button onclick="returnBook(${book.id})">Return</button>`
-                        }
-                        <button onclick="deleteBook(${book.id})">Delete</button>
-                    </td>
-                `;
-                list.appendChild(row);
-            });
+            row.innerHTML = `
+              <td>${book.title}</td>
+              <td>${book.author}</td>
+              <td>${book.isbn}</td>
+              <td>${book.status}</td>
+              <td>
+                ${
+                  book.status === "available"
+                    ? `<button onclick="borrowBook(${book.id})">Borrow</button>`
+                    : `<button onclick="returnBook(${book.id})">Return</button>`
+                }
+                <button onclick="deleteBook(${book.id})">Delete</button>
+              </td>
+            `;
+            list.appendChild(row);
+          });
         });
-}
+    }
 
-function addBook() {
-    fetch(API, {
+    function addBook() {
+      fetch(API, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-            title: document.getElementById("title").value,
-            author: document.getElementById("author").value,
-            isbn: document.getElementById("isbn").value
+          title: document.getElementById("title").value,
+          author: document.getElementById("author").value,
+          isbn: document.getElementById("isbn").value,
+          image: document.getElementById("image").value
         })
-    }).then(() => {
+      }).then(() => {
         document.getElementById("title").value = "";
         document.getElementById("author").value = "";
         document.getElementById("isbn").value = "";
+        document.getElementById("image").value = "";
         loadBooks();
-    });
-}
+      });
+    }
 
-function borrowBook(id) {
-    fetch(`${API}/${id}/borrow`, { method: "POST" })
-        .then(loadBooks);
-}
+    function borrowBook(id) {
+      fetch(`${API}/${id}/borrow`, { method: "POST", credentials: "include"  }).then(loadBooks);
+    }
 
-function returnBook(id) {
-    fetch(`${API}/${id}/return`, { method: "POST" })
-        .then(loadBooks);
-}
+    function returnBook(id) {
+      fetch(`${API}/${id}/return`, { method: "POST" }).then(loadBooks);
+    }
 
-function deleteBook(id) {
-    if (!confirm("Delete this book?")) return;
+    function deleteBook(id) {
+      if (!confirm("Delete this book?")) return;
+      fetch(`${API}/${id}`, { method: "DELETE", credentials: "include"  }).then(loadBooks);
+    }
 
-    fetch(`${API}/${id}`, {
-        method: "DELETE"
-    }).then(loadBooks);
-}
-
-loadBooks();
-</script>
+    loadBooks();
+  </script>
 
 </body>
 </html>

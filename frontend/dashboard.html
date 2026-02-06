@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>LibraryHub</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="header.css">
+</head>
+<body>
+
+<header class="header">
+  <div class="header-inner">
+    <div class="logo">LibraryHub</div>
+
+    <nav class="nav-links">
+      <a href="dashboard.html">Home</a>
+      <a href="index.html">Catalog</a>
+      <a href="#">Events</a>
+      <a href="#">About</a>
+    </nav>
+
+
+    <div class="nav-actions">
+      <input type="text" placeholder="Search books..." />
+    </div>
+  </div>
+</header>
+
+
+<section class="hero">
+  <div class="hero-text">
+    <h1>Discover Your Next Favorite Book</h1>
+    <p>
+      Access thousands of books, audiobooks, and resources from our digital library
+      collection.
+    </p>
+
+    <div class="hero-buttons">
+      <a href="index.html" class="hero-btn">Browse Collection</a>
+      <button>Join Now</button>
+      <button>Check Orders</button>
+    </div>
+  </div> 
+
+  <div class="hero-image"></div>
+</section>
+
+<section class="section">
+  <h2>Browse by Category</h2>
+
+  <div class="categories">
+    <div class="category">Fiction</div>
+    <div class="category">Science</div>
+    <div class="category">History</div>
+    <div class="category">Children</div>
+  </div>
+</section>
+
+  <section class="section">
+    <div class="section-header">
+      <h2>New Arrivals</h2>
+      <a href="#">View all</a>
+    </div>
+
+    <div class="books" id="new-arrivals">
+    <!-- database books -->
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>Our Services</h2>
+
+    <div class="services">
+    <div class="service">
+      <h3>Digital Library</h3>
+      <p>Access ebooks, audiobooks, and digital resources anytime.</p>
+    </div>
+
+    <div class="service">
+      <h3>Library Events</h3>
+      <p>Book clubs, author talks, workshops, and community programs.</p>
+    </div>
+
+    <div class="service">
+      <h3>Research Tools</h3>
+      <p>Academic databases, research materials, and special collections.</p>
+    </div>
+  </div>
+</section>
+
+<script>
+const API = "http://127.0.0.1:5000/api/books";
+
+fetch(API)
+  .then(res => res.json())
+  .then(books => {
+    const container = document.getElementById("new-arrivals");
+    container.innerHTML = "";
+
+    books.slice(0, 5).forEach(book => {
+      const card = document.createElement("div");
+      card.className = "book";
+
+      card.innerHTML = `
+        <div class="cover">
+          ${book.image ? `<img src="${book.image}" alt="${book.title}">` : ""}
+        </div>
+        <h3>${book.title}</h3>
+        <span>${book.author}</span>
+      `;
+
+      container.appendChild(card);
+    });
+  });
+</script>

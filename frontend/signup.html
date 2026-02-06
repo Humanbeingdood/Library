@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sign Up</title>
+</head>
+<body>
+
+<h1>Create Account</h1>
+
+<input id="username" placeholder="Username">
+<br><br>
+<input id="password" type="password" placeholder="Password">
+<br><br>
+<button onclick="signup()">Sign Up</button>
+
+<p id="message"></p>
+
+<a href="login.html">Already have an account? Login</a>
+
+<script>
+function signup() {
+    fetch("http://127.0.0.1:5000/api/signup", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            username: document.getElementById("username").value,
+            password: document.getElementById("password").value
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.error) {
+            document.getElementById("message").innerText = data.error;
+        } else {
+            document.getElementById("message").innerText = "Account created succesfully";
+        }
+    });
+}
+</script>
+
+</body>
+</html>

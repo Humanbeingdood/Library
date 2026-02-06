@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
+</head>
+<body>
+
+<h1>Library Login</h1>
+
+<input id="username" placeholder="Username">
+<br><br>
+<input id="password" type="password" placeholder="Password">
+<br><br>
+<button onclick="login()">Login</button>
+<br><br>
+<a href="signup.html">Don't have an account?</a>
+
+<p id="error" style="color:red;"></p>
+
+<script>
+function login() {
+    fetch("http://127.0.0.1:5000/api/login", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            username: document.getElementById("username").value,
+            password: document.getElementById("password").value
+        })
+    }).then(res => {
+        if (res.ok) {
+            window.location.href = "index.html";
+        } else {
+            document.getElementById("error").innerText = "Invalid login";
+        }
+    });
+}
+</script>
+
+</body>
+</html>
