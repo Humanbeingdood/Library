@@ -4,6 +4,10 @@ from flask_cors import CORS
 from models import db, Book, User
 
 app = Flask(__name__, static_folder="frontend")
+app.config.update(
+    SESSION_COOKIE_SAMESITE="None",
+    SESSION_COOKIE_SECURE=False
+)
 app.secret_key = "supersecretkey"
 
 login_manager = LoginManager()

@@ -66,11 +66,11 @@
   <!-- script -->
   <script>
     function checkUser() {
-      fetch("http://127.0.0.1:5000/api/me", { credentials: "include" })
+      fetch("http://localhost:5000/api/me", { credentials: "include" })
       .then(res => res.json())
       .then(data => {
         if (!data.username) {
-          window.location.href = "login.html";  // not logged in
+          window.location.href = "login.html";
         }
       });
     }
@@ -78,19 +78,19 @@
     checkUser();
 
     function logout() {
-      fetch("http://127.0.0.1:5000/api/logout", { method: "POST", credentials: "include"  })
+      fetch("http://localhost:5000/api/logout", { method: "POST", credentials: "include"  })
       .then(() => {
         window.location.href = "login.html";
       });
     }
 
-    const API = "http://127.0.0.1:5000/api/books";
+    const API = "http://localhost:5000/api/books";
 
     function loadBooks() {
       const search = document.getElementById("search")?.value || "";
       const url = search ? `${API}?search=${search}` : API;
 
-      fetch(url)
+      fetch(url, {credentials: "include"})
         .then(res => res.json())
         .then(data => {
           const list = document.getElementById("book-list");
@@ -119,6 +119,7 @@
 
     function addBook() {
       fetch(API, {
+        credentials: "include",
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -141,7 +142,8 @@
     }
 
     function returnBook(id) {
-      fetch(`${API}/${id}/return`, { method: "POST" }).then(loadBooks);
+      fetch(`${API}/${id}/return`, { method: "POST", credentials: "include"
+       }).then(loadBooks);
     }
 
     function deleteBook(id) {
